@@ -1,0 +1,72 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+use Tueen\Telegram\App;
+use Tueen\Telegram\Example\ToDoList\Service\DatabaseService;
+use Tueen\Telegram\Example\ToDoList\Service\ReminderService;
+use Tueen\Telegram\Example\ToDoList\Service\UserSettingsService;
+
+$app = App::create(dirname(__DIR__));
+$db = DatabaseService::getInstance();
+$settings = new UserSettingsService($db);
+$reminders = new ReminderService($db, $settings);
+
+$command = $argv[1] ?? 'help';
+
+match ($command) {
+    'reminder:run' => (function () use ($app, $reminders) {
+        echo "⏰ Checking and processing due reminders...\n";
+        $count = $reminders->processDueReminders($app->bot);
+        echo "✅ Done. Sent {$count} reminder(s).\n";
+        exit(0);
+    })(),
+
+    'reminder:watch' => (function () use ($app, $reminders) {
+        $interval = (int)($argv[2] ?? 15);
+        echo "⏰ Starting reminder background worker (checking every {$interval}s)...\n";
+        echo "Press Ctrl+C to stop.\n\n";
+        while (true) {
+            $count = $reminders->processDueReminders($app->bot);
+            if ($count > 0) {
+                echo "[" . date('Y-m-d H:i:s') . "] Dispatched {$count} reminder(s).\n";
+            }
+            sleep($interval);
+        }
+    })(),
+
+    'db:sync' => (function () use ($db) {
+        echo "🔄 Synchronizing database schema...\n";
+        $executed = $db->syncSchema();
+        echo "✅ Done. Executed " . count($executed) . " statement(s).\n";
+        exit(0);
+    })(),
+
+    'db:status', 'stats' => (function () use ($db) {
+        $chatsCount = count($db->chats()->findAll());
+        $tasksCount = count($db->tasks()->findAll());
+        $catsCount = count($db->categories()->findAll());
+        $remindersCount = count($db->reminders()->findAll());
+
+        echo "📊 Tueen To-Do List Bot Database Status:\n";
+        echo "▪️ Registered Chats: {$chatsCount}\n";
+        echo "▪️ Total Tasks: {$tasksCount}\n";
+        echo "▪️ Total Categories: {$catsCount}\n";
+        echo "▪️ Total Reminders: {$remindersCount}\n";
+        exit(0);
+    })(),
+
+    default => (function () {
+        echo "👑 Tueen To-Do List Bot CLI Console\n\n";
+        echo "Available commands:\n";
+        echo "  reminder:run         Process and send due task reminders once\n";
+        echo "  reminder:watch [sec] Continuously check and dispatch reminders (default 15s)\n";
+        echo "  db:sync              Synchronize database schema diffs\n";
+        echo "  db:status            Show database table counts and statistics\n";
+        echo "  help                 Show this help message\n";
+        exit(0);
+    })(),
+};

@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+use Tueen\Telegram\App;
+
+// Bootstrap Tueen App
+$app = App::create(dirname(__DIR__));
+
+// Execute CLI actions (poll, webhook:set, doctor, etc.)
+exit((int) $app->run());

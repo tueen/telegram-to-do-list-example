@@ -1,0 +1,21 @@
+# Set default behavior for all files (normalize line endings)
+* text=auto eol=lf
+
+# Shell scripts and CLI runners
+bin/bot text eol=lf
+bin/console text eol=lf
+
+# Ignore files and directories in GitHub release archives (git archive)
+/.agents/               export-ignore
+/.github/               export-ignore
+/.idea/                 export-ignore
+/.vscode/               export-ignore
+/tests/                 export-ignore
+.gitattributes          export-ignore
+.gitignore              export-ignore
+.phpunit.result.cache   export-ignore
+AGENTS.md               export-ignore
+phpunit.xml             export-ignore
+*.zip                   export-ignore
+*.tar                   export-ignore
+*.tar.gz                export-ignore

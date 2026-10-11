@@ -1,0 +1,28 @@
+# Dependencies
+/vendor/
+
+# Storage & Flow state
+/storage/flow/*
+!/storage/flow/.gitkeep
+/storage/database.sqlite*
+
+# Environment files
+.env
+.env.backup
+.env.*.local
+
+# Build archives & artifacts
+*.zip
+*.tar
+*.tar.gz
+
+# Testing & Cache
+.phpunit.result.cache
+
+# IDE & Editor settings
+.idea/
+.vscode/
+
+# Operating System files
+.DS_Store
+Thumbs.db
